@@ -19,12 +19,12 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 }); */
 
-//main page
+// your first API endpoint... 
 app.get("/", function (req, res) {
   res.send("Hello World");
 })
 
-// your first API endpoint... 
+// hello API 
 app.get("/api/hello", function (req, res) {
   res.json({ greeting: 'hello API' });
 });
@@ -55,6 +55,16 @@ app.get("/api/timestamp/:date_string", (req, res) => {
 
   res.json({ error: "Invalid Date" });
 });
+
+//set current timestamp
+app.get("/api/timestamp/", (req, res) => {
+  res.json({ unix: Date.now(), utc: Date() });
+});
+
+//header parser
+app.get("/api/whoami", function (req, res) {
+  res.json({ ipaddress: req.ip, language: req.headers["accept-language"], software: req.get('User-Agent') });
+})
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT || 3000, function () {
