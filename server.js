@@ -128,48 +128,50 @@ app.post("/api/shorturl/new", (req,res)=>{
   // Check if valid address
   dns.lookup(newURL.hostname, (err, addresses, family) => {
     const httpRegex = /^(http|https)(:\/\/)/;
-    if (!httpRegex.test(newURL.hostname)) { err="regex error" }
-    if (err) {
-      // Return error
-      res.json({
-        error: 'invalid url'
-      });
-    } else {
-      // Check if url already exists
-      urlModel.findOne({
-        url: req.body.url
-      }, (err, urlFound) => {
-        // Return url data
-        if (urlFound !== null) {
-          res.json({
-            original_url: urlFound.url,
-            short_url: urlFound.id,
-            new_url: process.env.baseURL + urlFound.id
-          });
-        } else {
-          // Get url count
-          urlModel.count({}, (err, urlCounter) => {
-            // Get next id
-            let newId = urlCounter + 1;
-
-            // Create new url from post
-            let newUrlModel = new urlModel({
-              id: newId,
-              url: req.body.url
+    if (!httpRegex.test(newURL.hostname)) { return res.json({ error: 'invalid url' }) 
+    }else{
+      if (err) {
+        // Return error
+        res.json({
+          error: 'invalid url'
+        });
+      } else {
+        // Check if url already exists
+        urlModel.findOne({
+          url: req.body.url
+        }, (err, urlFound) => {
+          // Return url data
+          if (urlFound !== null) {
+            res.json({
+              original_url: urlFound.url,
+              short_url: urlFound.id,
+              new_url: process.env.baseURL + urlFound.id
             });
+          } else {
+            // Get url count
+            urlModel.count({}, (err, urlCounter) => {
+              // Get next id
+              let newId = urlCounter + 1;
 
-            // Save new url
-            newUrlModel.save((err, urlFound) => {
-              // Return results
-              res.json({
-                original_url: urlFound.url,
-                short_url: urlFound.id,
-                new_url: process.env.baseURL + urlFound.id
+              // Create new url from post
+              let newUrlModel = new urlModel({
+                id: newId,
+                url: req.body.url
+              });
+
+              // Save new url
+              newUrlModel.save((err, urlFound) => {
+                // Return results
+                res.json({
+                  original_url: urlFound.url,
+                  short_url: urlFound.id,
+                  new_url: process.env.baseURL + urlFound.id
+                });
               });
             });
-          });
-        }
-      });
+          }
+        });
+      }
     }
   });
 })
