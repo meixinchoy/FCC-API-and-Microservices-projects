@@ -180,7 +180,7 @@ app.get("/api/shorturl/:url", (req,res)=>{
     if (!data) {
       // Send error message
       res.json({
-        error: 'Short url not registered'
+        error: 'invalid url'
       });
     } else {
       // Redirect to url
