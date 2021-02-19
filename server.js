@@ -60,6 +60,10 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: 'hello API' });
 });
 
+
+/*
+TIMESTAMP MICROSERVICE
+*/
 //set current timestamp
 app.get("/api/timestamp/", (req, res) => {
   res.json({ unix: Date.now(), utc: Date() });
@@ -92,17 +96,25 @@ app.get("/api/timestamp/", (req, res) => {
   res.json({ unix: Date.now(), utc: Date() });
 });
 
-//header parser
+
+/*
+HEADER PARSER MICROSERVICE
+*/
 app.get("/api/whoami", function (req, res) {
   res.json({ ipaddress: req.ip, language: req.headers["accept-language"], software: req.get('User-Agent') });
 })
 
-// url shortener
+
+/*
+URL SHORTENER MICROSERVICE
+*/
+// render html page
 app.get("/api/shorturl/", function (req, res) {
   res.render(process.cwd() + '/views/index.html');
 });
 
-app.post("/api/shorturl/new",(req,res)=>{
+// create and save shortened url to MDB
+app.post("/api/shorturl/new", (req,res)=>{
   let newURL;
   try {
     // Convert string to URL
@@ -113,7 +125,6 @@ app.post("/api/shorturl/new",(req,res)=>{
       error: 'invalid URL'
     });
   }
-  console.log(req.body)
   // Check if valid address
   dns.lookup(newURL.hostname, (err, addresses, family) => {
     if (err) {
@@ -130,7 +141,7 @@ app.post("/api/shorturl/new",(req,res)=>{
         if (urlFound !== null) {
           res.json({
             original_url: urlFound.url,
-            short_url: urlFound.id
+            short_url: process.env.baseURL + urlFound.id
           });
         } else {
           // Get url count
@@ -149,7 +160,7 @@ app.post("/api/shorturl/new",(req,res)=>{
               // Return results
               res.json({
                 original_url: urlFound.url,
-                short_url: urlFound.id
+                short_url: process.env.baseURL+urlFound.id.toString
               });
             });
           });
@@ -157,6 +168,23 @@ app.post("/api/shorturl/new",(req,res)=>{
       });
     }
   });
+})
+
+//redirect from shortened url to actual page
+app.get("/api/shorturl/:url", (req,res)=>{
+  urlModel.findOne({
+    id: req.params.url
+  }, (err, data) => {
+    if (!data) {
+      // Send error message
+      res.json({
+        error: 'Short url not registered'
+      });
+    } else {
+      // Redirect to url
+      res.redirect(data.url);
+    }
+  })
 })
 
 // listen for requests :)
