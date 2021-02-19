@@ -122,7 +122,7 @@ app.post("/api/shorturl/new", (req,res)=>{
   } catch (e) {
     // Return error
     res.json({
-      error: 'invalid URL'
+      error: 'invalid url'
     });
   }
   // Check if valid address
@@ -130,7 +130,7 @@ app.post("/api/shorturl/new", (req,res)=>{
     if (err) {
       // Return error
       res.json({
-        error: 'invalid URL'
+        error: 'invalid url'
       });
     } else {
       // Check if url already exists
