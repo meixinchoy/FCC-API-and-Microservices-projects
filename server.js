@@ -141,7 +141,8 @@ app.post("/api/shorturl/new", (req,res)=>{
         if (urlFound !== null) {
           res.json({
             original_url: urlFound.url,
-            short_url: process.env.baseURL + urlFound.id
+            short_url: urlFound.id,
+            new_url: process.env.baseURL + urlFound.id
           });
         } else {
           // Get url count
@@ -160,7 +161,8 @@ app.post("/api/shorturl/new", (req,res)=>{
               // Return results
               res.json({
                 original_url: urlFound.url,
-                short_url: process.env.baseURL+urlFound.id.toString
+                short_url: urlFound.id,
+                new_url: process.env.baseURL + urlFound.id
               });
             });
           });
