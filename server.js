@@ -109,7 +109,7 @@ app.get("/api/whoami", function (req, res) {
 URL SHORTENER MICROSERVICE
 */
 // render html page
-app.get("/api/shorturl/", function (req, res) {
+app.get("/", function (req, res) {
   res.render(process.cwd() + '/views/index.html');
 });
 
