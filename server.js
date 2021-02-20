@@ -32,14 +32,24 @@ mongoose.connection.on("open", function () {
   console.log("Connected to MongoDB database.")
 })
 
-// Create url schema
+// Create schemas
 let urlSchema = new mongoose.Schema({
   id: Number,
   url: String
 });
 
-// Create url model
+let exerciseTracker = new mongoose.Schema({
+  username:String,
+  exercise:[{
+    desc:String,
+    dur: Number,
+    date: Date
+  }]
+})
+
+// Create models
 let urlModel = mongoose.model('urls', urlSchema);
+let trackerModel = mongoose.model('tracker', exerciseTracker)
 
 /*
 // http://expressjs.com/en/starter/static-files.html
@@ -108,9 +118,10 @@ app.get("/api/whoami", function (req, res) {
 /*
 URL SHORTENER MICROSERVICE
 */
-// render html page
-app.get("/", function (req, res) {
-  res.render(process.cwd() + '/views/index.html');
+// render html page 
+//Change route to "/" when submitting to fcc
+app.get("/api/shorturl/", function (req, res) {
+  res.render(process.cwd() + '/views/shorturl.html');
 });
 
 // create and save shortened url to MDB
@@ -192,6 +203,76 @@ app.get("/api/shorturl/:url", (req,res)=>{
       res.redirect(data.url);
     }
   })
+})
+
+
+/*
+EXERCISE TRACKER MICROSERVICE
+*/
+// render html page 
+//Change route to "/" when submitting to fcc
+app.get("/", function (req, res) {
+  res.render(process.cwd() + '/views/exercisetracker.html');
+});
+
+//add user
+app.post("/api/exercise/new-user",(req,res)=>{
+  trackerModel.find({username:req.body.username},(err,user)=>{
+    if (user.length > 0){
+      res.json({
+        error:"username already taken"
+      })
+    }else{
+      try{
+        let newUser = new trackerModel({ username: req.body.username,exercise:[] })
+        newUser.save()
+        res.json({
+          username: req.body.username,
+          _id: newUser._id
+        })
+      }catch(e){
+        res.json({
+          error: "error saving username"
+        })
+      }
+    }
+  })
+})
+
+//add exercise
+app.post("/api/exercise/add",(req,res)=>{
+  try {
+    trackerModel.findById(req.body.userId,(err,user)=>{
+      if (typeof user === "undefined") {
+        return res.json({
+          error: "invalid id"
+        })
+      }
+      console.log(typeof req.body.date)
+      let date = req.body.date
+      if(typeof req.body.date==="undefined"){
+        date= new Date()
+      }
+      console.log(date)
+      user.exercise.push({
+        desc: req.body.description,
+        dur: req.body.duration,
+        date: date
+      })
+      res.json({
+        username: req.body.username,
+        _id: user._id,
+        description: req.body.description,
+        duration: req.body.duration,
+        date: date
+      })
+    });
+  } catch (error) {
+    console.error(error)
+    res.json({
+      error: "error saving username"
+    })
+  }
 })
 
 // listen for requests :)
