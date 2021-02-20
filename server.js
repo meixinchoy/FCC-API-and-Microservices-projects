@@ -127,8 +127,8 @@ app.post("/api/shorturl/new", (req,res)=>{
   }
   // Check if valid address
   dns.lookup(newURL.hostname, (err, addresses, family) => {
-    const httpRegex = /^(http|https)(:\/\/)/;
-    if (!httpRegex.test(newURL.hostname)) { 
+    const httpRegex = new RegExp('^(http|https)(://)');
+    if (!httpRegex.test(req.body.url)) { 
       res.json({ error: 'invalid url' }) 
     }else{
       if (err) {
