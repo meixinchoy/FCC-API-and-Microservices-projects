@@ -248,9 +248,8 @@ app.post("/api/exercise/add",(req,res)=>{
           error: "invalid id"
         })
       }
-      console.log(typeof req.body.date)
       let date = req.body.date
-      if(typeof req.body.date==="undefined"){
+      if(req.body.date===""){
         date= new Date()
       }
       console.log(date)
@@ -274,6 +273,14 @@ app.post("/api/exercise/add",(req,res)=>{
     })
   }
 })
+
+//show record
+app.get("/api/exercise/log?{userId}[&from][&to][&limit]", (req,res)=>{
+  res.json({
+    a:req.query.userId
+  })
+})
+
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT || 3000, function () {
