@@ -313,7 +313,7 @@ app.get("/api/exercise/log", (req,res)=>{
         res.json({
             ...user.toObject(),
             log: logs,
-            count: logs.length,
+            count: limit,
           })
         })
       }
@@ -327,16 +327,16 @@ app.get("/api/exercise/log", (req,res)=>{
 })
 
 app.get("/api/exercise/users",(req,res)=>{
-  let users=[]
+  let u=[]
   exerciseUserModel.find({},(err,results)=>{
     if(err){
       console.error(err)
     }else{
       for(let i=0;i<results.length;i++){
-        users.push({ _id: results[i]._id, username: results[i].username})
+        u.push({ _id: results[i]._id, username: results[i].username})
       }
     }
-    res.send(users)
+    res.send(u)
   })
 })
 
