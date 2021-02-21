@@ -259,11 +259,11 @@ app.post("/api/exercise/add",(req,res)=>{
       })
       user.save();
       res.json({
-        username: user.username,
         _id: user._id,
-        description: req.body.description,
+        username: user.username,
+        date: date,
         duration: req.body.duration,
-        date: date
+        description: req.body.description
       })
     });
   } catch (error) {
