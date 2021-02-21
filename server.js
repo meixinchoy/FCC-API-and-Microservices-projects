@@ -41,8 +41,8 @@ let urlSchema = new mongoose.Schema({
 let exerciseTracker = new mongoose.Schema({
   username:String,
   exercise:[{
-    desc:String,
-    dur: Number,
+    description:String,
+    duration: Number,
     date: Date
   }]
 })
@@ -252,12 +252,12 @@ app.post("/api/exercise/add",(req,res)=>{
       if(req.body.date===""){
         date= new Date()
       }
-      console.log(date)
       user.exercise.push({
-        desc: req.body.description,
-        dur: req.body.duration,
+        description: req.body.description,
+        duration: req.body.duration,
         date: date
       })
+      user.save();
       res.json({
         username: req.body.username,
         _id: user._id,
@@ -275,10 +275,50 @@ app.post("/api/exercise/add",(req,res)=>{
 })
 
 //show record
-app.get("/api/exercise/log?{userId}[&from][&to][&limit]", (req,res)=>{
-  res.json({
-    a:req.query.userId
-  })
+app.get("/api/exercise/log", (req,res)=>{
+  try {
+    trackerModel.findById(req.query.userId, (err, user) => {
+      if (user === null) {
+        return res.json({
+          error: "invalid id"
+        })
+      }else{
+        let log = []
+        let limit = user.exercise.length
+        let count=0
+        if (req.query.limit){
+          if (req.query.limit < limit){
+            limit = req.query.limit
+          }
+        }
+        for (let i = 0; count < limit && i < user.exercise.length; i++) {
+          if (req.query.from){
+            if (new Date(req.query.from) > user.exercise[i].date){
+              continue;
+            }
+          }   
+          if (req.query.to) {
+            if (new Date(req.query.to) < user.exercise[i].date) {
+              continue;
+            }
+          }         
+          log.push(user.exercise[i])
+          count++
+        }
+        res.json({
+          username: user.username,
+          _id: user._id,
+          count: limit,
+          log: log
+        })
+      }
+    });
+  } catch (error) {
+    console.error(error)
+    res.json({
+      error: "error showing logs"
+    })
+  }
 })
 
 
