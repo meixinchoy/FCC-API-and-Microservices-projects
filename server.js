@@ -38,18 +38,21 @@ let urlSchema = new mongoose.Schema({
   url: String
 });
 
-let exerciseTracker = new mongoose.Schema({
-  usersname: String,
-  exercise: [{
-    description: String,
-    duration: Number,
-    date: Date
-  }]
+let exerciseUser = new mongoose.Schema({
+  username:String
+})
+
+let exercises = new mongoose.Schema({
+  userId: String,
+  description: String,
+  duration: Number,
+  date: Date
 })
 
 // Create models
 let urlModel = mongoose.model('urls', urlSchema);
-let trackerModel = mongoose.model('tracker', exerciseTracker)
+let trackerModel = mongoose.model('exercisetracker', exercises)
+let exerciseUserModel = mongoose.model('exerciseUser', exerciseUser)
 
 /*
 // http://expressjs.com/en/starter/static-files.html
@@ -217,14 +220,14 @@ app.get("/", function (req, res) {
 
 //add user
 app.post("/api/exercise/new-user",(req,res)=>{
-  trackerModel.find({username:req.body.username},(err,user)=>{
+  exerciseUserModel.find({username:req.body.username},(err,user)=>{
     if (user.length > 0){
       res.json({
         error:"username already taken"
       })
     }else{
       try{
-        let newUser = new trackerModel({ usersname: req.body.username,exercise:[] })
+        let newUser = new exerciseUserModel({ usersname: req.body.username})
         newUser.save()
         res.json({
           username: req.body.username,
@@ -242,7 +245,7 @@ app.post("/api/exercise/new-user",(req,res)=>{
 //add exercise
 app.post("/api/exercise/add",(req,res)=>{
   try {
-    trackerModel.findById(req.body.userId,(err,user)=>{
+    exerciseUserModel.findById(req.body.userId,(err,user)=>{
       if (typeof user === "undefined") {
         return res.json({
           error: "invalid id"
@@ -252,15 +255,16 @@ app.post("/api/exercise/add",(req,res)=>{
       if(req.body.date===""){
         date= new Date()
       }
-      user.exercise.push({
+      let exercise = new trackerModel({
+        userId:req.body.userId,
         description: req.body.description,
         duration: req.body.duration,
         date: date
       })
-      user.save();
+      exercise.save();
       res.json({
         _id: user._id,
-        username: user.usersname,
+        username: user.username,
         date: date,
         duration: req.body.duration,
         description: req.body.description
@@ -277,40 +281,47 @@ app.post("/api/exercise/add",(req,res)=>{
 //show record
 app.get("/api/exercise/log", (req,res)=>{
   try {
-    trackerModel.findById(req.query.userId, (err, user) => {
+    exerciseUserModel.findById(req.query.userId, (err, user) => {
       if (user === null) {
         return res.json({
           error: "invalid id"
         })
       }else{
-        let log = []
-        let limit = user.exercise.length
-        let count=0
-        if (req.query.limit){
-          if (req.query.limit < limit){
-            limit = req.query.limit
-          }
-        }
-        for (let i = 0; count < limit && i < user.exercise.length; i++) {
-          if (req.query.from){
-            if (new Date(req.query.from) > user.exercise[i].date){
-              continue;
-            }
-          }   
-          if (req.query.to) {
-            if (new Date(req.query.to) < user.exercise[i].date) {
-              continue;
-            }
-          }         
-          log.push(user.exercise[i])
-          count++
-        }
-        res.json({
-          username: user.usersname,
-          _id: user._id,
-          count: limit,
-          log: log
+        exerciseUserModel.find({userId:req.query.userId},(err,logs)=>{
+          res.json({
+            ...user.toObject(),
+            log: logs,
+            count: logs.length,
+          })
         })
+        // let log = []
+        // let limit = user.exercise.length
+        // let count=0
+        // if (req.query.limit){
+        //   if (req.query.limit < limit){
+        //     limit = req.query.limit
+        //   }
+        // }
+        // for (let i = 0; count < limit && i < user.exercise.length; i++) {
+        //   if (req.query.from){
+        //     if (new Date(req.query.from) > user.exercise[i].date){
+        //       continue;
+        //     }
+        //   }   
+        //   if (req.query.to) {
+        //     if (new Date(req.query.to) < user.exercise[i].date) {
+        //       continue;
+        //     }
+        //   }         
+        //   log.push(user.exercise[i])
+        //   count++
+        // }
+        // res.json({
+        //   username: user.usersname,
+        //   _id: user._id,
+        //   count: limit,
+        //   log: log
+        // })
       }
     });
   } catch (error) {
@@ -323,15 +334,12 @@ app.get("/api/exercise/log", (req,res)=>{
 
 app.get("/api/exercise/users",(req,res)=>{
   let users=[]
-  trackerModel.find({},(err,results)=>{
+  exerciseUserModel.find({},(err,results)=>{
     if(err){
       console.error(err)
     }else{
-      for (let i=0;i<results.length;i++) {
-        users.push({ username: results[i].usersname, _id: results[i]._id })
-      }
+      res.send(results)
     }
-    res.send(users)
   })
 })
 
