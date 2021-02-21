@@ -263,7 +263,7 @@ app.post("/api/exercise/add",(req,res)=>{
       })
       exercise.save();
       res.json({
-        _id: exercise._id,
+        _id: user._id,
         username: user.username,
         date: date,
         duration: req.body.duration,
@@ -298,19 +298,15 @@ app.get("/api/exercise/log", (req,res)=>{
         let fromdate = new Date(req.query.from)
         let todate = new Date(req.query.to)
         for (let i = 0; i < logs.length; i++) {
-          console.log("start",logs[i].description)
           if (req.query.from){
             if ( fromdate> logs[i].date){
-              console.log(logs[i].description, i)
               logs.splice(i,1)
-              
               i--
               continue;
             }
           }   
           if (req.query.to) {
             if ( todate < logs[i].date) {
-              console.log(logs[i].description, i)
               logs.splice(i, 1)
               i--
               continue;
@@ -321,7 +317,6 @@ app.get("/api/exercise/log", (req,res)=>{
             break;
           } 
           count++
-          console.log("end",logs[i].description)
         }
         res.json({
           _id: user._id,
