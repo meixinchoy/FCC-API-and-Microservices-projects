@@ -227,10 +227,10 @@ app.post("/api/exercise/new-user",(req,res)=>{
       })
     }else{
       try{
-        let newUser = new exerciseUserModel({ usersname: req.body.username})
+        let newUser = new exerciseUserModel({ username: req.body.username})
         newUser.save()
         res.json({
-          username: req.body.username,
+          username: newUser.username,
           _id: newUser._id
         })
       }catch(e){
@@ -287,41 +287,35 @@ app.get("/api/exercise/log", (req,res)=>{
           error: "invalid id"
         })
       }else{
-        exerciseUserModel.find({userId:req.query.userId},(err,logs)=>{
-          res.json({
+        trackerModel.find({userId:req.query.userId},(err,logs)=>{
+        let count=0
+        let limit = logs.length
+        if (req.query.limit){
+          if (req.query.limit < limit){
+            limit = req.query.limit
+          }
+        }
+        for (let i = 0; count < limit && i < logs.length; i++) {
+          if (req.query.from){
+            if (new Date(req.query.from) > logs[i].date){
+              delete logs[i]
+              continue;
+            }
+          }   
+          if (req.query.to) {
+            if (new Date(req.query.to) < logs[i].date) {
+              delete logs[i]
+              continue;
+            }
+          }         
+          count++
+        }
+        res.json({
             ...user.toObject(),
             log: logs,
             count: logs.length,
           })
         })
-        // let log = []
-        // let limit = user.exercise.length
-        // let count=0
-        // if (req.query.limit){
-        //   if (req.query.limit < limit){
-        //     limit = req.query.limit
-        //   }
-        // }
-        // for (let i = 0; count < limit && i < user.exercise.length; i++) {
-        //   if (req.query.from){
-        //     if (new Date(req.query.from) > user.exercise[i].date){
-        //       continue;
-        //     }
-        //   }   
-        //   if (req.query.to) {
-        //     if (new Date(req.query.to) < user.exercise[i].date) {
-        //       continue;
-        //     }
-        //   }         
-        //   log.push(user.exercise[i])
-        //   count++
-        // }
-        // res.json({
-        //   username: user.usersname,
-        //   _id: user._id,
-        //   count: limit,
-        //   log: log
-        // })
       }
     });
   } catch (error) {
@@ -338,8 +332,11 @@ app.get("/api/exercise/users",(req,res)=>{
     if(err){
       console.error(err)
     }else{
-      res.send(results)
+      for(let i=0;i<results.length;i++){
+        users.push({ _id: results[i]._id, username: results[i].username})
+      }
     }
+    res.send(users)
   })
 })
 
