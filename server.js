@@ -39,9 +39,9 @@ let urlSchema = new mongoose.Schema({
 });
 
 let exerciseTracker = new mongoose.Schema({
-  username:String,
-  exercise:[{
-    description:String,
+  usersname: String,
+  exercise: [{
+    description: String,
     duration: Number,
     date: Date
   }]
@@ -217,17 +217,17 @@ app.get("/", function (req, res) {
 
 //add user
 app.post("/api/exercise/new-user",(req,res)=>{
-  trackerModel.find({username:req.body.username},(err,user)=>{
+  trackerModel.find({username:req.body.usersname},(err,user)=>{
     if (user.length > 0){
       res.json({
         error:"username already taken"
       })
     }else{
       try{
-        let newUser = new trackerModel({ username: req.body.username,exercise:[] })
+        let newUser = new trackerModel({ username: req.body.usersname,exercise:[] })
         newUser.save()
         res.json({
-          username: req.body.username,
+          username: req.body.usersname,
           _id: newUser._id
         })
       }catch(e){
@@ -260,7 +260,7 @@ app.post("/api/exercise/add",(req,res)=>{
       user.save();
       res.json({
         _id: user._id,
-        username: user.username,
+        username: user.usersname,
         date: date,
         duration: req.body.duration,
         description: req.body.description
@@ -306,7 +306,7 @@ app.get("/api/exercise/log", (req,res)=>{
           count++
         }
         res.json({
-          username: user.username,
+          username: user.usersname,
           _id: user._id,
           count: limit,
           log: log
@@ -327,8 +327,8 @@ app.get("/api/exercise/users",(req,res)=>{
     if(err){
       console.error(err)
     }else{
-      for (let r of results) {
-        users.push({ username: r.username, id: r._id })
+      for (let i=0;i<results.length;i++) {
+        users.push({ username: results[i].usersname, id: results[i]._id })
       }
     }
     res.send(users)
