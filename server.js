@@ -327,7 +327,7 @@ app.get("/api/exercise/users",(req,res)=>{
     if(err){
       console.error(err)
     }else{
-      for (r in results) {
+      for (let r of results) {
         users.push({ username: r.username, id: r._id })
       }
     }
