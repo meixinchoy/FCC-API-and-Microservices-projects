@@ -295,25 +295,38 @@ app.get("/api/exercise/log", (req,res)=>{
             limit = req.query.limit
           }
         }
-        for (let i = 0; count < limit && i < logs.length; i++) {
+        let fromdate = new Date(req.query.from)
+        let todate = new Date(req.query.to)
+        for (let i = 0; i < logs.length; i++) {
+          console.log("start",logs[i].description)
           if (req.query.from){
-            if (new Date(req.query.from) > logs[i].date){
-              delete logs[i]
+            if ( fromdate> logs[i].date){
+              console.log(logs[i].description, i)
+              logs.splice(i,1)
+              
+              i--
               continue;
             }
           }   
           if (req.query.to) {
-            if (new Date(req.query.to) < logs[i].date) {
-              delete logs[i]
+            if ( todate < logs[i].date) {
+              console.log(logs[i].description, i)
+              logs.splice(i, 1)
+              i--
               continue;
             }
-          }         
+          }       
+          if(count >= limit){
+            logs.splice(i, logs.length-i)
+            break;
+          } 
           count++
+          console.log("end",logs[i].description)
         }
         res.json({
           _id: user._id,
           username: user.username,
-          count: limit,
+          count: count,
           log: logs
           })
         })
