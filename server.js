@@ -321,6 +321,15 @@ app.get("/api/exercise/log", (req,res)=>{
   }
 })
 
+app.get("api/exercise/users",(res,req)=>{
+  let users=[]
+  trackerModel.find({},(err,results)=>{
+    for(r in results){
+      users.push({username:r.username, id:r._id})
+    }
+  })
+  res.send(users)
+})
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT || 3000, function () {
