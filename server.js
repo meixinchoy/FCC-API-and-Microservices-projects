@@ -214,7 +214,7 @@ EXERCISE TRACKER MICROSERVICE
 */
 // render html page 
 //Change route to "/" when submitting to fcc
-app.get("/", function (req, res) {
+app.get("/api/exercise/", function (req, res) {
   res.render(process.cwd() + '/views/exercisetracker.html');
 });
 
@@ -256,15 +256,6 @@ app.post("/api/exercise/add",(req,res)=>{
           error: "invalid id"
         })
       }
-      // let date = new Date(req.body.date)
-      // if(req.body.date===""){
-      //   date= new Date()
-      // }
-      // if (date === null) {
-      //   return res.json({
-      //     error: "invalid id"
-      //   })
-      // }
       let date = !req.body.date ? new Date() : new Date(req.body.date);
       if (date instanceof Date && isNaN(date)) {
         return res.json({ Error: 'Please enter valid date in format [YYYY-MM-DD]' });
@@ -363,6 +354,19 @@ app.get("/api/exercise/users",(req,res)=>{
     res.send(u)
   })
 })
+
+
+
+/*
+FILE METADATA MICROSERVICE
+*/
+// render html page 
+//Change route to "/" when submitting to fcc
+app.get("/", function (req, res) {
+  res.render(process.cwd() + '/views/filemetadata.html');
+});
+
+
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT || 3000, function () {
