@@ -321,7 +321,7 @@ app.get("/api/exercise/log", (req,res)=>{
   }
 })
 
-app.get("api/exercise/users",(res,req)=>{
+app.get("api/exercise/users",(req,res)=>{
   let users=[]
   trackerModel.find({},(err,results)=>{
     for(r in results){
