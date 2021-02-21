@@ -217,17 +217,17 @@ app.get("/", function (req, res) {
 
 //add user
 app.post("/api/exercise/new-user",(req,res)=>{
-  trackerModel.find({username:req.body.usersname},(err,user)=>{
+  trackerModel.find({username:req.body.username},(err,user)=>{
     if (user.length > 0){
       res.json({
         error:"username already taken"
       })
     }else{
       try{
-        let newUser = new trackerModel({ username: req.body.usersname,exercise:[] })
+        let newUser = new trackerModel({ usersname: req.body.username,exercise:[] })
         newUser.save()
         res.json({
-          username: req.body.usersname,
+          username: req.body.username,
           _id: newUser._id
         })
       }catch(e){
