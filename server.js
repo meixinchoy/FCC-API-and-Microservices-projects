@@ -246,6 +246,11 @@ app.post("/api/exercise/new-user",(req,res)=>{
 app.post("/api/exercise/add",(req,res)=>{
   try {
     exerciseUserModel.findById(req.body.userId,(err,user)=>{
+      if(err){
+        res.json({
+          error: "error saving username"
+        })
+      }
       if (typeof user === "undefined") {
         return res.json({
           error: "invalid id"
@@ -270,13 +275,14 @@ app.post("/api/exercise/add",(req,res)=>{
         duration: req.body.duration,
         date: date
       })
-      exercise.save();
-      res.json({
-        _id: user._id,
-        username: user.username,
-        date: date,
-        duration: req.body.duration,
-        description: req.body.description
+      exercise.save().then(item => {
+        res.json({
+          _id: user._id,
+          username: user.username,
+          date: date,
+          duration: req.body.duration,
+          description: req.body.description
+        })
       })
     });
   } catch (error) {
