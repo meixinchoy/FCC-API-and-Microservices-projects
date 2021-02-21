@@ -321,11 +321,15 @@ app.get("/api/exercise/log", (req,res)=>{
   }
 })
 
-app.get("api/exercise/users",(req,res)=>{
+app.get("/api/exercise/users",(req,res)=>{
   let users=[]
   trackerModel.find({},(err,results)=>{
-    for(r in results){
-      users.push({username:r.username, id:r._id})
+    if(err){
+      console.error(err)
+    }else{
+      for (r in results) {
+        users.push({ username: r.username, id: r._id })
+      }
     }
   })
   res.send(users)
