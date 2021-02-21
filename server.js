@@ -311,9 +311,10 @@ app.get("/api/exercise/log", (req,res)=>{
           count++
         }
         res.json({
-            ...user.toObject(),
-            log: logs,
-            count: limit,
+          _id: user._id,
+          username: user.username,
+          count: limit,
+          log: logs
           })
         })
       }
