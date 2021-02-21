@@ -269,19 +269,18 @@ app.post("/api/exercise/add",(req,res)=>{
       if (date instanceof Date && isNaN(date)) {
         return res.json({ Error: 'Please enter valid date in format [YYYY-MM-DD]' });
       } 
-      date = date.toDateString()
       let exercise = new trackerModel({
         userId:req.body.userId,
         description: req.body.description,
-        duration: req.body.duration,
-        date: date
+        duration: parseInt(req.body.duration),
+        date: date.toDateString()
       })
       exercise.save().then(item => {
         res.json({
           _id: user._id,
           username: user.username,
-          date: date,
-          duration: req.body.duration,
+          date: date.toDateString(),
+          duration: parseInt(req.body.duration),
           description: req.body.description
         })
       })
