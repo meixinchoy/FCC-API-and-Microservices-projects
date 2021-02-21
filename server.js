@@ -251,10 +251,19 @@ app.post("/api/exercise/add",(req,res)=>{
           error: "invalid id"
         })
       }
-      let date = req.body.date
-      if(req.body.date===""){
-        date= new Date()
-      }
+      // let date = new Date(req.body.date)
+      // if(req.body.date===""){
+      //   date= new Date()
+      // }
+      // if (date === null) {
+      //   return res.json({
+      //     error: "invalid id"
+      //   })
+      // }
+      let date = !req.body.date ? new Date() : new Date(req.body.date);
+      if (date instanceof Date && isNaN(date)) {
+        return res.json({ Error: 'Please enter valid date in format [YYYY-MM-DD]' });
+      } 
       let exercise = new trackerModel({
         userId:req.body.userId,
         description: req.body.description,
