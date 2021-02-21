@@ -331,8 +331,8 @@ app.get("/api/exercise/users",(req,res)=>{
         users.push({ username: r.username, id: r._id })
       }
     }
+    res.send(users)
   })
-  res.send(users)
 })
 
 // listen for requests :)
