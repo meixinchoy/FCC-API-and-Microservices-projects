@@ -1,6 +1,6 @@
 'use strict';
 
-var process = require('process'); 
+var process = require('process');
 var express = require('express');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
@@ -39,7 +39,7 @@ let urlSchema = new mongoose.Schema({
 });
 
 let exerciseUser = new mongoose.Schema({
-  username:String
+  username: String
 })
 
 let exercises = new mongoose.Schema({
@@ -128,7 +128,7 @@ app.get("/api/shorturl/", function (req, res) {
 });
 
 // create and save shortened url to MDB
-app.post("/api/shorturl/new", (req,res)=>{
+app.post("/api/shorturl/new", (req, res) => {
   let newURL;
   try {
     // Convert string to URL
@@ -142,9 +142,9 @@ app.post("/api/shorturl/new", (req,res)=>{
   // Check if valid address
   dns.lookup(newURL.hostname, (err, addresses, family) => {
     const httpRegex = new RegExp('^(http|https)(://)');
-    if (!httpRegex.test(req.body.url)) { 
-      res.json({ error: 'invalid url' }) 
-    }else{
+    if (!httpRegex.test(req.body.url)) {
+      res.json({ error: 'invalid url' })
+    } else {
       if (err) {
         // Return error
         res.json({
@@ -192,7 +192,7 @@ app.post("/api/shorturl/new", (req,res)=>{
 })
 
 //redirect from shortened url to actual page
-app.get("/api/shorturl/:url", (req,res)=>{
+app.get("/api/shorturl/:url", (req, res) => {
   urlModel.findOne({
     id: req.params.url
   }, (err, data) => {
@@ -219,21 +219,21 @@ app.get("/api/exercise/", function (req, res) {
 });
 
 //add user
-app.post("/api/exercise/new-user",(req,res)=>{
-  exerciseUserModel.find({username:req.body.username},(err,user)=>{
-    if (user.length > 0){
+app.post("/api/exercise/new-user", (req, res) => {
+  exerciseUserModel.find({ username: req.body.username }, (err, user) => {
+    if (user.length > 0) {
       res.json({
-        error:"username already taken"
+        error: "username already taken"
       })
-    }else{
-      try{
-        let newUser = new exerciseUserModel({ username: req.body.username})
+    } else {
+      try {
+        let newUser = new exerciseUserModel({ username: req.body.username })
         newUser.save()
         res.json({
           username: newUser.username,
           _id: newUser._id
         })
-      }catch(e){
+      } catch (e) {
         res.json({
           error: "error saving username"
         })
@@ -243,10 +243,10 @@ app.post("/api/exercise/new-user",(req,res)=>{
 })
 
 //add exercise
-app.post("/api/exercise/add",(req,res)=>{
+app.post("/api/exercise/add", (req, res) => {
   try {
-    exerciseUserModel.findById(req.body.userId,(err,user)=>{
-      if(err){
+    exerciseUserModel.findById(req.body.userId, (err, user) => {
+      if (err) {
         res.json({
           error: "error saving username"
         })
@@ -259,9 +259,9 @@ app.post("/api/exercise/add",(req,res)=>{
       let date = !req.body.date ? new Date() : new Date(req.body.date);
       if (date instanceof Date && isNaN(date)) {
         return res.json({ Error: 'Please enter valid date in format [YYYY-MM-DD]' });
-      } 
+      }
       let exercise = new trackerModel({
-        userId:req.body.userId,
+        userId: req.body.userId,
         description: req.body.description,
         duration: parseInt(req.body.duration),
         date: date.toDateString()
@@ -285,50 +285,50 @@ app.post("/api/exercise/add",(req,res)=>{
 })
 
 //show record
-app.get("/api/exercise/log", (req,res)=>{
+app.get("/api/exercise/log", (req, res) => {
   try {
     exerciseUserModel.findById(req.query.userId, (err, user) => {
       if (user === null) {
         return res.json({
           error: "invalid id"
         })
-      }else{
-        trackerModel.find({userId:req.query.userId},(err,logs)=>{
-        let count=0
-        let limit = logs.length
-        if (req.query.limit){
-          if (req.query.limit < limit){
-            limit = req.query.limit
+      } else {
+        trackerModel.find({ userId: req.query.userId }, (err, logs) => {
+          let count = 0
+          let limit = logs.length
+          if (req.query.limit) {
+            if (req.query.limit < limit) {
+              limit = req.query.limit
+            }
           }
-        }
-        let fromdate = new Date(req.query.from)
-        let todate = new Date(req.query.to)
-        for (let i = 0; i < logs.length; i++) {
-          if (req.query.from){
-            if ( fromdate> logs[i].date){
-              logs.splice(i,1)
-              i--
-              continue;
+          let fromdate = new Date(req.query.from)
+          let todate = new Date(req.query.to)
+          for (let i = 0; i < logs.length; i++) {
+            if (req.query.from) {
+              if (fromdate > logs[i].date) {
+                logs.splice(i, 1)
+                i--
+                continue;
+              }
             }
-          }   
-          if (req.query.to) {
-            if ( todate < logs[i].date) {
-              logs.splice(i, 1)
-              i--
-              continue;
+            if (req.query.to) {
+              if (todate < logs[i].date) {
+                logs.splice(i, 1)
+                i--
+                continue;
+              }
             }
-          }       
-          if(count >= limit){
-            logs.splice(i, logs.length-i)
-            break;
-          } 
-          count++
-        }
-        res.json({
-          _id: user._id,
-          username: user.username,
-          count: count,
-          log: logs
+            if (count >= limit) {
+              logs.splice(i, logs.length - i)
+              break;
+            }
+            count++
+          }
+          res.json({
+            _id: user._id,
+            username: user.username,
+            count: count,
+            log: logs
           })
         })
       }
@@ -341,14 +341,14 @@ app.get("/api/exercise/log", (req,res)=>{
   }
 })
 
-app.get("/api/exercise/users",(req,res)=>{
-  let u=[]
-  exerciseUserModel.find({},(err,results)=>{
-    if(err){
+app.get("/api/exercise/users", (req, res) => {
+  let u = []
+  exerciseUserModel.find({}, (err, results) => {
+    if (err) {
       console.error(err)
-    }else{
-      for(let i=0;i<results.length;i++){
-        u.push({ _id: results[i]._id, username: results[i].username})
+    } else {
+      for (let i = 0; i < results.length; i++) {
+        u.push({ _id: results[i]._id, username: results[i].username })
       }
     }
     res.send(u)
@@ -360,13 +360,26 @@ app.get("/api/exercise/users",(req,res)=>{
 /*
 FILE METADATA MICROSERVICE
 */
+var multer = require('multer')
+var storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads')
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname)
+  }
+})
+var upload = multer({ storage: storage })
 // render html page 
 //Change route to "/" when submitting to fcc
 app.get("/", function (req, res) {
   res.render(process.cwd() + '/views/filemetadata.html');
 });
 
-
+app.post('/api/fileanalyse', upload.single('upfile'), function (req, res, next) {
+  // display file details
+  res.json({ name: req.file.originalname, type: req.file.mimetype, size: req.file.size })
+})
 
 // listen for requests :)
 var listener = app.listen(process.env.PORT || 3000, function () {
