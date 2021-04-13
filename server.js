@@ -369,16 +369,22 @@ var storage = multer.diskStorage({
     cb(null, file.originalname)
   }
 })
-var upload = multer({ storage: storage })
+var upload = multer({ storage: storage }).single('upfile')
 // render html page 
 //Change route to "/" when submitting to fcc
 app.get("/", function (req, res) {
   res.render(process.cwd() + '/views/filemetadata.html');
 });
 
-app.post('/api/fileanalyse', upload.single('upfile'), function (req, res, next) {
+app.post('/api/fileanalyse', function (req, res, next) {
   // display file details
-  res.json({ name: req.file.originalname, type: req.file.mimetype, size: req.file.size })
+  upload(req,res,function(err){
+    if (err){
+      res.error()
+    }else{
+      res.json({ name: req.file.originalname, type: req.file.mimetype, size: req.file.size })
+    }
+  })
 })
 
 // listen for requests :)
